@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe '/users' do
+RSpec.describe '/api/v1/users' do
   # This should return the minimal set of values that should be in the headers
   # in order to pass any filters (e.g. authentication) defined in
   # UsersController, or in your router and rack
@@ -17,7 +17,7 @@ RSpec.describe '/users' do
     it 'renders a successful response' do
       expect(users.size).to eq(2)
 
-      get users_url, headers: valid_headers, as: :json
+      get api_v1_users_url, headers: valid_headers, as: :json
       expect(response).to be_successful
 
       body = response.parsed_body
@@ -31,7 +31,7 @@ RSpec.describe '/users' do
     it 'renders a successful response' do
       expect(user).not_to be_nil
 
-      get user_url(user), as: :json
+      get api_v1_user_url(user), as: :json
       expect(response).to be_successful
 
       body = response.parsed_body
@@ -52,13 +52,13 @@ RSpec.describe '/users' do
     context 'with valid parameters' do
       it 'creates a new User' do
         expect do
-          post users_url,
+          post api_v1_users_url,
                params: { user: valid_attributes }, headers: valid_headers, as: :json
         end.to change(User, :count).by(1)
       end
 
       it 'renders a JSON response with the new user' do
-        post users_url,
+        post api_v1_users_url,
              params: { user: valid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:created)
         expect(response.content_type).to match(a_string_including('application/json'))
@@ -77,13 +77,13 @@ RSpec.describe '/users' do
 
       it 'does not create a new User' do
         expect do
-          post users_url,
+          post api_v1_users_url,
                params: { user: invalid_attributes }, as: :json
         end.not_to change(User, :count)
       end
 
       it 'renders a JSON response with errors for the new user' do
-        post users_url,
+        post api_v1_users_url,
              params: { user: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
@@ -100,7 +100,7 @@ RSpec.describe '/users' do
       end
 
       it 'updates the requested user' do
-        patch user_url(user),
+        patch api_v1_user_url(user),
               params: { user: new_attributes }, headers: valid_headers, as: :json
         user.reload
         expect(response).to have_http_status(:ok)
@@ -108,7 +108,7 @@ RSpec.describe '/users' do
       end
 
       it 'renders a JSON response with the user' do
-        patch user_url(user),
+        patch api_v1_user_url(user),
               params: { user: new_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to match(a_string_including('application/json'))
@@ -126,7 +126,7 @@ RSpec.describe '/users' do
       end
 
       it 'renders a JSON response with errors for the user' do
-        patch user_url(user),
+        patch api_v1_user_url(user),
               params: { user: invalid_attributes }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to match(a_string_including('application/json'))
@@ -139,7 +139,7 @@ RSpec.describe '/users' do
 
     it 'destroys the requested user' do
       expect do
-        delete user_url(user), headers: valid_headers, as: :json
+        delete api_v1_user_url(user), headers: valid_headers, as: :json
       end.to change(User, :count).by(-1)
     end
   end
