@@ -1,6 +1,6 @@
 {
   "recommendations": [
     "shopify.ruby-lsp",
-    "misogi.ruby-rubocop"
+    "rubocop.vscode-rubocop"
   ]
 }
