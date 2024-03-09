@@ -4,6 +4,7 @@ module Api
   module V1
     # Description: Users controller for API v1
     class UsersController < Api::V1::ApplicationController
+      skip_before_action :authenticate_user, only: %i[index]
       before_action :set_user, only: %i[show update destroy]
 
       # GET /users
