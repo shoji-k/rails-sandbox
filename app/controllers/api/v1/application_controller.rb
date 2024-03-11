@@ -8,11 +8,25 @@ module Api
 
       private
 
-      def authenticate_user
-        token = request.headers['Authorization']&.split&.last
+      def token
+        request.headers['Authorization']&.split&.last
+      end
 
-        head :unauthorized if token.nil?
-        # render json: { errors: ['unauthorized '] }, status: :unauthorized
+      def authenticated_user
+        return nil if token.nil?
+
+        payload, _alg = JWT.decode token, nil, false
+        return nil if payload.nil?
+
+        User.find_by(id: payload['sub'])
+      end
+
+      def authenticate_user
+        if authenticated_user.nil?
+          head :unauthorized
+        else
+          token
+        end
       end
     end
   end

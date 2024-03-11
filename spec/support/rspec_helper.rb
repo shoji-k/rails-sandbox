@@ -4,6 +4,9 @@
 module RequestHelper
   def valid_headers(user)
     token = user.id
+
+    payload = { sub: token }
+    token = JWT.encode payload, nil, 'none'
     { Authorization: "Bearer #{token}" }
   end
 end
