@@ -6,7 +6,7 @@ module RequestHelper
     token = user.id
 
     payload = { sub: token }
-    token = JWT.encode payload, nil, 'none'
+    token = JWT.encode payload, Auth.token_secret_signature_key.call, Auth.algorithm
     { Authorization: "Bearer #{token}" }
   end
 end
