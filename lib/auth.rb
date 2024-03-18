@@ -7,10 +7,6 @@ module Auth
 
   mattr_accessor :token_secret_signature_key
   self.token_secret_signature_key = lambda {
-    if Rails.application.respond_to?(:secret_key_base)
-      Rails.application.secret_key_base
-    else
-      Rails.application.secrets.secret_key_base
-    end
+    Rails.application.secret_key_base
   }
 end
