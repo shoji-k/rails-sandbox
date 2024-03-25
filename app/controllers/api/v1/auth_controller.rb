@@ -14,7 +14,7 @@ module Api
           return
         end
 
-        token = 'sample'
+        token = Auth::Token.generate(user)
         render json: { token: }, status: :created
       end
 

@@ -3,6 +3,19 @@
 module Auth
   # token for jwt
   module Token
+    def self.generate(user)
+      token = user.id
+
+      payload = { sub: token }
+      JWT.encode payload, Auth.token_secret_signature_key.call, Auth.algorithm
+    end
+
+    private
+
+    def token
+      request.headers['Authorization']&.split&.last
+    end
+
     def authenticated_user
       return nil if token.nil?
 
@@ -10,12 +23,6 @@ module Auth
       return nil if payload.nil?
 
       User.find_by(id: payload['sub'])
-    end
-
-    private
-
-    def token
-      request.headers['Authorization']&.split&.last
     end
 
     def authenticate_user
