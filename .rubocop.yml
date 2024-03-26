@@ -22,5 +22,4 @@ Style/Documentation:
     - "db/migrate/**/*.rb"
 
 RSpec/MultipleExpectations:
-  Exclude:
-    - "spec/requests/**/*.rb"
+  Max: 4

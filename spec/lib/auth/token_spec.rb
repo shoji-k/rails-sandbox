@@ -12,11 +12,24 @@ RSpec.describe Auth::Token do
     end
   end
 
-  describe 'instance' do
+  describe 'initialize' do
+    let(:token) { described_class.generate(user) }
+
     it 'return jwt token' do
+      instance = described_class.new(token)
+      expect(instance.token).to start_with('eyJ')
+      expect(instance.payload).to eq({ 'sub' => user.id })
+    end
+  end
+
+  describe 'authenticated_user' do
+    let(:instance) do
       token = described_class.generate(user)
-      obj = described_class.new(token)
-      expect(obj.token).to start_with('eyJ')
+      described_class.new(token)
+    end
+
+    it 'return user' do
+      expect(instance.authenticated_user).to eq user
     end
   end
 end

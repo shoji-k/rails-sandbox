@@ -19,6 +19,10 @@ module Auth
       JWT.encode payload, Auth.token_secret_signature_key.call, Auth.algorithm
     end
 
+    def authenticated_user
+      ::User.find_by(id: @payload['sub'])
+    end
+
     def to_json(*_args)
       { jwt: @token }.to_json
     end
