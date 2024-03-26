@@ -8,7 +8,6 @@ module Api
 
       def create
         user = User.find_by(email: auth_params[:email])
-
         if user.nil? || !user.authenticate(auth_params[:password])
           render json: { error: 'Invalid email or password' }, status: :unauthorized
           return

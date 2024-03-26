@@ -4,7 +4,7 @@ module Api
   module V1
     # Description: Base controller for API v1
     class ApplicationController < ActionController::API
-      include Auth::Token
+      include Auth::User
       before_action :authenticate_user
     end
   end

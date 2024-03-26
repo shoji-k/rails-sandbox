@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module Auth
-  # token for jwt
-  class Token
-    def self.generate(user)
-      token = user.id
-
-      payload = { sub: token }
-      JWT.encode payload, Auth.token_secret_signature_key.call, Auth.algorithm
-    end
-
+  # user module
+  module User
     private
 
     def token
@@ -22,14 +15,15 @@ module Auth
       payload, _alg = JWT.decode token, Auth.token_secret_signature_key.call, true, { algorithm: Auth.algorithm }
       return nil if payload.nil?
 
-      User.find_by(id: payload['sub'])
+      ::User.find_by(id: payload['sub'])
     end
 
     def authenticate_user
-      if authenticated_user.nil?
+      current_user = authenticated_user
+      if current_user.nil?
         head :unauthorized
       else
-        token
+        current_user
       end
     end
   end
