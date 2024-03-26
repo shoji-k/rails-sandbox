@@ -3,6 +3,15 @@
 module Auth
   # token for jwt
   class Token
+    attr_reader :token, :payload
+
+    def initialize(token)
+      return if token.blank?
+
+      @payload, _alg = JWT.decode token, Auth.token_secret_signature_key.call, true, { algorithm: Auth.algorithm }
+      @token = token
+    end
+
     def self.generate(user)
       token = user.id
 
@@ -10,27 +19,8 @@ module Auth
       JWT.encode payload, Auth.token_secret_signature_key.call, Auth.algorithm
     end
 
-    private
-
-    def token
-      request.headers['Authorization']&.split&.last
-    end
-
-    def authenticated_user
-      return nil if token.nil?
-
-      payload, _alg = JWT.decode token, Auth.token_secret_signature_key.call, true, { algorithm: Auth.algorithm }
-      return nil if payload.nil?
-
-      User.find_by(id: payload['sub'])
-    end
-
-    def authenticate_user
-      if authenticated_user.nil?
-        head :unauthorized
-      else
-        token
-      end
+    def to_json(*_args)
+      { jwt: @token }.to_json
     end
   end
 end
