@@ -10,9 +10,9 @@ module Auth
     end
 
     def current_user
-      return nil if token.nil?
-
       Auth::Token.new(token).authenticated_user
+    rescue JWT::DecodeError, JWT::EncodeError
+      nil
     end
 
     def authenticate_user
