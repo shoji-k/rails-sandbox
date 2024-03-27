@@ -18,7 +18,7 @@ RSpec.describe Auth::Token do
     it 'return jwt token' do
       instance = described_class.new(token)
       expect(instance.token).to start_with('eyJ')
-      expect(instance.payload).to eq({ 'sub' => user.id })
+      expect(instance.payload).to include({ 'sub' => user.id })
     end
 
     context 'when token is blank' do
@@ -51,6 +51,16 @@ RSpec.describe Auth::Token do
 
       it 'raise decode error' do
         expect { described_class.new(token) }.to raise_error(JWT::DecodeError)
+      end
+    end
+
+    context 'when lifetime is over' do
+      it 'return user' do
+        Auth.lifetime = 1.day
+        token = described_class.generate(user)
+        travel_to Time.zone.now.since(2.days) do
+          expect { described_class.new(token) }.to raise_error(JWT::DecodeError)
+        end
       end
     end
   end

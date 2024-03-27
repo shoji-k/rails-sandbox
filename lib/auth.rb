@@ -2,6 +2,9 @@
 
 # Auth for jwt
 module Auth
+  mattr_accessor :lifetime
+  self.lifetime = 1.day
+
   mattr_accessor :algorithm
   self.algorithm = 'HS256'
 
