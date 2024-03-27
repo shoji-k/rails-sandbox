@@ -3,10 +3,7 @@
 # Documentation: Helper for request specs
 module RequestHelper
   def valid_headers(user)
-    token = user.id
-
-    payload = { sub: token }
-    token = JWT.encode payload, Auth.token_secret_signature_key.call, Auth.algorithm
+    token = Auth::Token.generate(user)
     { Authorization: "Bearer #{token}" }
   end
 end

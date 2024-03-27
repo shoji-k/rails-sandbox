@@ -12,4 +12,10 @@ module Auth
   self.token_secret_signature_key = lambda {
     Rails.application.secret_key_base
   }
+
+  mattr_accessor :iss
+  self.iss = 'Rails API'
+
+  mattr_accessor :aud
+  self.aud = 'user'
 end

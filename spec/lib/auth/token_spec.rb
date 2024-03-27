@@ -13,7 +13,13 @@ RSpec.describe Auth::Token do
   end
 
   describe 'initialize' do
-    let(:token) { described_class.generate(user) }
+    let(:payload) do
+      token = user.id
+      { sub: token, iss: Auth.iss, aud: Auth.aud, exp: 1.day.from_now.to_i, iat: Time.zone.now.to_i }
+    end
+    let(:token) do
+      JWT.encode payload, Auth.token_secret_signature_key.call, Auth.algorithm
+    end
 
     it 'return jwt token' do
       instance = described_class.new(token)
@@ -21,7 +27,7 @@ RSpec.describe Auth::Token do
       expect(instance.payload).to include({ 'sub' => user.id })
     end
 
-    context 'when token is blank' do
+    context 'when token argument is blank' do
       it 'return nil params' do
         instance = described_class.new('')
         expect(instance.token).to be_nil
@@ -30,11 +36,7 @@ RSpec.describe Auth::Token do
     end
 
     context 'when decode key is wrong' do
-      let(:token) do
-        token = user.id
-        payload = { sub: token }
-        JWT.encode payload, 'dummy', Auth.algorithm
-      end
+      let(:token) { JWT.encode payload, 'dummy', Auth.algorithm }
 
       it 'raise decode error' do
         expect { described_class.new(token) }.to raise_error(JWT::DecodeError)
@@ -44,8 +46,6 @@ RSpec.describe Auth::Token do
     context 'when algorithm is wrong' do
       let(:token) do
         Auth.algorithm = 'HS512'
-        token = user.id
-        payload = { sub: token }
         JWT.encode payload, Auth.token_secret_signature_key.call, 'HS256'
       end
 
@@ -55,12 +55,46 @@ RSpec.describe Auth::Token do
     end
 
     context 'when lifetime is over' do
+      let(:token) do
+        JWT.encode payload.merge({ exp: Time.zone.now.ago(1.second) }), Auth.token_secret_signature_key.call,
+                   Auth.algorithm
+      end
+
       it 'return user' do
-        Auth.lifetime = 1.day
-        token = described_class.generate(user)
-        travel_to Time.zone.now.since(2.days) do
-          expect { described_class.new(token) }.to raise_error(JWT::DecodeError)
-        end
+        expect { described_class.new(token) }.to raise_error(JWT::DecodeError)
+      end
+    end
+
+    context 'when iss is wrong' do
+      let(:token) do
+        JWT.encode payload.merge({ iss: 'wrong iss' }), Auth.token_secret_signature_key.call,
+                   Auth.algorithm
+      end
+
+      it 'return user' do
+        expect { described_class.new(token) }.to raise_error(JWT::DecodeError)
+      end
+    end
+
+    context 'when aud is wrong' do
+      let(:token) do
+        JWT.encode payload.merge({ aud: 'wrong aud' }), Auth.token_secret_signature_key.call,
+                   Auth.algorithm
+      end
+
+      it 'return user' do
+        expect { described_class.new(token) }.to raise_error(JWT::DecodeError)
+      end
+    end
+
+    context 'when iat is future' do
+      let(:token) do
+        JWT.encode payload.merge({ iat: Time.zone.now.since(1.day).to_i }), Auth.token_secret_signature_key.call,
+                   Auth.algorithm
+      end
+
+      it 'return user' do
+        expect { described_class.new(token) }.to raise_error(JWT::DecodeError)
       end
     end
   end
